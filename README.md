@@ -2,8 +2,6 @@
 
 A Python options-pricing engine for European options, implementing Black-Scholes pricing, Greeks, Monte Carlo simulation, implied volatility estimation, binomial tree pricing, volatility surface visualization, market option-chain analysis, and a FastAPI pricing endpoint.
 
-The project is designed as a resume-ready quantitative finance and software engineering project. It combines financial modeling, numerical methods, API development, testing, visualization, and interactive analytics.
-
 ## Features
 
 * Price European call and put options using the Black-Scholes model
@@ -34,7 +32,6 @@ The project is designed as a resume-ready quantitative finance and software engi
 * Pydantic
 * pytest
 * yfinance
-* GitHub Actions
 
 ## Project Structure
 
@@ -195,17 +192,6 @@ Run the full test suite:
 ```bash
 pytest
 ```
-
-The project also includes a GitHub Actions workflow that automatically runs tests on every push and pull request to `main`.
-
-## Example Use Cases
-
-* Price European call and put options under different market assumptions
-* Compare analytical Black-Scholes prices against Monte Carlo and binomial tree prices
-* Analyze option risk using Greeks
-* Estimate implied volatility from market prices
-* Study volatility smiles and volatility surfaces across strikes and expirations
-* Expose pricing calculations through an API for integration into other applications
 
 ## Disclaimer
 
