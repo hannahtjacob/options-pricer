@@ -45,12 +45,12 @@ tests/
 
 ## How to Run
 
-git clone https://github.com/YOUR_USERNAME/options-pricer.git
-cd options-pricer
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-streamlit run app/streamlit_app.py
+- git clone https://github.com/YOUR_USERNAME/options-pricer.git
+- cd options-pricer
+- python3 -m venv .venv
+- source .venv/bin/activate
+- pip install -r requirements.txt
+- streamlit run app/streamlit_app.py
 
 ## How to Run Tests
 
