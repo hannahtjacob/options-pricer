@@ -1,6 +1,6 @@
 # Options Pricer
 
-A Python options-pricing engine that implements Black-Scholes pricing, Greeks, Monte Carlo simulation, implied volatility estimation, payoff diagrams, and an interactive Streamlit dashboard. This project is for educational and research purposes only. Market data is pulled through yfinance for educational/research purposes only. The project does not provide investment advice and should not be used for live trading decisions.
+A Python options-pricing engine that implements Black-Scholes pricing, Greeks, Monte Carlo simulation, implied volatility estimation, payoff diagrams, and an interactive Streamlit dashboard. Market data is pulled through yfinance for educational/research purposes only. The project does not provide investment advice and should not be used for live trading decisions.
 
 ## Features
 
@@ -41,6 +41,7 @@ tests/
   test_greeks.py
   test_monte_carlo.py
   test_implied_volatility.py
+```
 
 ## How to Run
 
