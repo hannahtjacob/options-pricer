@@ -96,7 +96,8 @@ def test_plot_volatility_surface_returns_3d_axes():
         }
     )
 
-    figure, axes = plot_volatility_surface(surface)
+    figure = plot_volatility_surface(surface)
+    axes = figure.axes[0]
 
     assert axes.name == "3d"
     assert axes.get_xlabel() == "Strike"

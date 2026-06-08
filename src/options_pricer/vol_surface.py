@@ -83,7 +83,7 @@ def plot_volatility_surface(
     surface: pd.DataFrame,
     *,
     title: str = "Implied Volatility Surface",
-):
+) -> "Figure":
     """Create a 3D matplotlib figure from calculated volatility surface data."""
     missing_columns = {
         "strike",
@@ -99,8 +99,13 @@ def plot_volatility_surface(
     ].dropna()
     if len(plot_data.drop_duplicates(["strike", "time_to_expiration"])) < 3:
         raise ValueError("surface must contain at least three distinct data points")
+    if plot_data["strike"].nunique() < 2 or plot_data["time_to_expiration"].nunique() < 2:
+        raise ValueError(
+            "surface must contain multiple strikes and expiration dates"
+        )
 
     import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
 
     figure = plt.figure()
     axes = figure.add_subplot(111, projection="3d")
@@ -116,7 +121,7 @@ def plot_volatility_surface(
     axes.set_zlabel("Implied Volatility")
     axes.set_title(title)
 
-    return figure, axes
+    return figure
 
 
 def _get_market_prices(options_chain: pd.DataFrame) -> pd.Series:

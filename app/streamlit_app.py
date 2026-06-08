@@ -3,6 +3,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import streamlit as st
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -12,8 +13,17 @@ sys.path.append(str(SRC_DIR))
 from options_pricer.black_scholes import black_scholes_price
 from options_pricer.greeks import delta, gamma, vega, theta, rho
 from options_pricer.implied_volatility import implied_volatility
+from options_pricer.market_data import (
+    get_option_chain,
+    get_option_expirations,
+    get_spot_price,
+)
 from options_pricer.monte_carlo import monte_carlo_price
 from options_pricer.payoff import option_payoff
+from options_pricer.vol_surface import (
+    calculate_volatility_surface,
+    plot_volatility_surface,
+)
 
 
 st.set_page_config(page_title="Options Pricer", layout="wide")
@@ -84,3 +94,120 @@ ax.set_xlabel("Stock Price at Expiration")
 ax.set_ylabel("Profit")
 ax.set_title(f"Long {option_type.capitalize()} Payoff")
 st.pyplot(fig)
+
+st.subheader("Volatility Surface")
+
+surface_col1, surface_col2 = st.columns(2)
+with surface_col1:
+    surface_ticker = st.text_input("Ticker", value="AAPL").strip().upper()
+    surface_option_type = st.selectbox(
+        "Surface Option Type",
+        ["call", "put"],
+    )
+with surface_col2:
+    surface_expiration_count = st.slider(
+        "Number of Expirations",
+        min_value=1,
+        max_value=10,
+        value=4,
+    )
+    st.caption(f"Risk-free rate: {r:.2%}")
+
+if st.button("Generate volatility surface"):
+    if not surface_ticker:
+        st.warning("Enter a ticker symbol.")
+    else:
+        with st.spinner(f"Loading {surface_ticker} option chains..."):
+            try:
+                surface_spot_price = get_spot_price(surface_ticker)
+                available_expirations = get_option_expirations(surface_ticker)
+            except Exception as exc:
+                st.error(
+                    f"Could not load market data for {surface_ticker}: {exc}"
+                )
+            else:
+                if not available_expirations:
+                    st.warning(
+                        f"No option expirations were found for {surface_ticker}."
+                    )
+                else:
+                    selected_expirations = available_expirations[
+                        :surface_expiration_count
+                    ]
+                    chains = []
+                    skipped_expirations = []
+
+                    for expiration in selected_expirations:
+                        try:
+                            chain = get_option_chain(
+                                surface_ticker,
+                                expiration,
+                                surface_option_type,
+                            )
+                        except Exception:
+                            skipped_expirations.append(expiration)
+                            continue
+
+                        if chain.empty:
+                            skipped_expirations.append(expiration)
+                            continue
+
+                        chain = chain.copy()
+                        chain["expiration"] = expiration
+                        chain["option_type"] = surface_option_type
+                        chains.append(chain)
+
+                    if skipped_expirations:
+                        st.warning(
+                            "Skipped expirations with unavailable option data: "
+                            + ", ".join(skipped_expirations)
+                        )
+
+                    if not chains:
+                        st.warning(
+                            "No usable option chains were returned. Try another "
+                            "ticker or option type."
+                        )
+                    else:
+                        try:
+                            combined_chain = pd.concat(chains, ignore_index=True)
+                            surface_df = calculate_volatility_surface(
+                                combined_chain,
+                                S=surface_spot_price,
+                                r=r,
+                            )
+                        except (TypeError, ValueError) as exc:
+                            st.error(f"Could not calculate the surface: {exc}")
+                        else:
+                            if surface_df.empty:
+                                st.warning(
+                                    "No valid implied volatilities could be "
+                                    "calculated from the returned quotes."
+                                )
+                            else:
+                                st.write(
+                                    f"Spot price for {surface_ticker}: "
+                                    f"${surface_spot_price:.2f}"
+                                )
+                                st.dataframe(
+                                    surface_df.head(25),
+                                    use_container_width=True,
+                                )
+
+                                try:
+                                    surface_figure = plot_volatility_surface(
+                                        surface_df,
+                                        title=(
+                                            f"{surface_ticker} "
+                                            f"{surface_option_type.capitalize()} "
+                                            "Implied Volatility Surface"
+                                        ),
+                                    )
+                                except (RuntimeError, ValueError) as exc:
+                                    st.warning(
+                                        f"Not enough usable data to plot the "
+                                        f"surface: {exc}"
+                                    )
+                                else:
+                                    st.pyplot(surface_figure)
+                                    plt.close(surface_figure)
