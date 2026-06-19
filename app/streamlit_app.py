@@ -86,14 +86,28 @@ st.subheader("Payoff Diagram")
 stock_prices = np.linspace(S * 0.5, S * 1.5, 100)
 payoff_df = option_payoff(stock_prices, K, bs_price, option_type, "long")
 
-fig, ax = plt.subplots()
-ax.plot(payoff_df["stock_price"], payoff_df["profit"])
-ax.axhline(0, linestyle="--")
-ax.axvline(K, linestyle="--")
+fig, ax = plt.subplots(figsize=(6.5, 4))
+fig.patch.set_facecolor("#0e1117")
+ax.set_facecolor("#0e1117")
+ax.plot(
+    payoff_df["stock_price"],
+    payoff_df["profit"],
+    color="#22d3ee",
+    linewidth=2.5,
+)
+ax.axhline(0, color="#facc15", linestyle="--", linewidth=1.3, alpha=0.9)
+ax.axvline(K, color="#f472b6", linestyle="--", linewidth=1.3, alpha=0.9)
 ax.set_xlabel("Stock Price at Expiration")
 ax.set_ylabel("Profit")
 ax.set_title(f"Long {option_type.capitalize()} Payoff")
-st.pyplot(fig)
+ax.tick_params(colors="#f8fafc")
+ax.xaxis.label.set_color("#f8fafc")
+ax.yaxis.label.set_color("#f8fafc")
+ax.title.set_color("#f8fafc")
+for spine in ax.spines.values():
+    spine.set_color("#475569")
+ax.grid(color="#334155", linestyle="-", linewidth=0.6, alpha=0.45)
+st.pyplot(fig, use_container_width=False)
 
 st.subheader("Volatility Surface")
 
